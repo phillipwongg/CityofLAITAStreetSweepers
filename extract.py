@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 from dateutil.relativedelta import relativedelta
 import pandas as pd 
 import pathlib
-
+import os 
 ENDPOINT = "https://ssl.orpak.com/api40/TrackTecPublic/PublicService.asmx/ExecuteCommand"
 
 cur_date = datetime.datetime.now().date()
@@ -23,8 +23,6 @@ params = """
           <PageSize>10000</PageSize>
           </Paramaters>
          """
-r = requests.get(ENDPOINT + "?CommandData=" + params)
-
 
 def querylist_builder():
     ret = [] # make an empty list to start throwing stuff onto
@@ -37,8 +35,12 @@ def querylist_builder():
     return ret
 
 def extract():
+    """
+    Extracts and saves info for all queries in querylist_builder
+    to a /tmp folder
+    """
     queries = querylist_builder()
-
+    
     pathlib.Path('/tmp/street_data').mkdir(parents=True, exist_ok=True) 
     for i,q in enumerate(queries):
         print("running extract query")
@@ -51,8 +53,19 @@ def extract():
         text_file.write(data)   
         print("data saved for {}".format(str(i)))
         text_file.close()
-def parse():
-    pass 
 
+def parse():
+    """
+    extract all the lat longs, save to DB 
+
+    """
+    for file in os.listdir('/tmp/street_data/'): 
+        with open(file, 'rb') as f:
+            data = f.readlines()
+        data = ''.join(data)
+        soup = BeautifulSoup(data)
+        :1
+
+                
 if '__name__' == '__main__':
     print('Running Script')
