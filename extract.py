@@ -5,6 +5,8 @@ from dateutil.relativedelta import relativedelta
 import pandas as pd 
 import pathlib
 import os 
+from bs4 import BeautifulSoup
+
 ENDPOINT = "https://ssl.orpak.com/api40/TrackTecPublic/PublicService.asmx/ExecuteCommand"
 
 cur_date = datetime.datetime.now().date()
@@ -56,16 +58,42 @@ def extract():
 
 def parse():
     """
-    extract all the lat longs, save to DB 
+    extract all the lat longs and elements, return as list 
 
     """
+    values = []
     for file in os.listdir('/tmp/street_data/'): 
-        with open(file, 'rb') as f:
+        with open('/tmp/street_data/' + file, 'r') as f:
             data = f.readlines()
         data = ''.join(data)
         soup = BeautifulSoup(data)
-        :1
+        tables = soup.findAll('table') 
+        for table in tables:
+            print(table)
+            time = table.find('eventtime')
+            lat = table.find('latitude')
+            long = table.find('longitude')
+            values.append({'lat': lat, 'long': long, 'time': time})
+            print(lat,long,time)
+    return values
 
-                
+def load(values):
+    """
+    load into some format for later study
+    
+    params = a list of values to laod
+    """
+    import sqlite3
+    conn = sqlite3.connect('./example.db')
+    df = pd.DataFrame(values)
+    df.to_sql('observations', conn)
+
+    
+
+
 if '__name__' == '__main__':
-    print('Running Script')
+    if not os.path.exists('/tmp/street_data'): 
+        extract()
+    values = parse()
+    load(values)
+
