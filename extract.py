@@ -19,8 +19,8 @@ params = """
           <ResultType>DEFAULT</ResultType>
           <DeviceIDs>81B16GBD5D00251</DeviceIDs>
           <SourceIDs>9,10,11,12,49,48,52</SourceIDs>
-          <StartDate>2018/02/15 00:00:00</StartDate>
-          <EndDate>2018/02/16 00:00:00</EndDate>
+          <StartDate>{}</StartDate>
+          <EndDate>{}</EndDate>
           <PageIndex>1</PageIndex>
           <PageSize>10000</PageSize>
           </Paramaters>
@@ -73,7 +73,9 @@ def parse():
             time = table.find('eventtime')
             lat = table.find('latitude')
             long = table.find('longitude')
-            values.append({'lat': lat, 'long': long, 'time': time})
+            values.append({'lat': lat.strip('<latitude>').strip('</latidude>'),
+                           'long': long.strip('<longitude>').strip('</longitude'),
+                           'time': time.strip('<eventtime>').strip('</eventtime>')})
             print(lat,long,time)
     return values
 
@@ -91,7 +93,7 @@ def load(values):
     
 
 
-if '__name__' == '__main__':
+if __name__ == '__main__':
     if not os.path.exists('/tmp/street_data'): 
         extract()
     values = parse()
