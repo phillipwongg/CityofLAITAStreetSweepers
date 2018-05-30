@@ -85,10 +85,11 @@ def load(values):
     
     params = a list of values to laod
     """
-    import sqlite3
-    conn = sqlite3.connect('./example.db')
+    import psycopg2
+    from sqlalchemy import create_engine
+    engine = create_engine('postgresql+psycopg://user:password@host/database')
     df = pd.DataFrame(values)
-    df.to_sql('observations', conn)
+    df.to_sql('observations', engine)
 
     
 
