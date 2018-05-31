@@ -43,18 +43,19 @@ def extract():
     """
     queries = querylist_builder()
     
-    pathlib.Path('/tmp/street_data').mkdir(parents=True, exist_ok=True) 
-    for i,q in enumerate(queries):
-        print("running extract query")
+    #pathlib.Path('/tmp/street_data').mkdir(parents=True, exist_ok=True) 
+    street_directory= Path('/tmp/street_data/')
+    for i, q in enumerate (queries):
         url = ENDPOINT + "?CommandData=" + q
-        print(url)
         r = requests.get(url)
-        text_file = open("/tmp/street_data/" + str(i) + ".xml", 'w')
-        data = r.text
-        print(data)
-        text_file.write(data)   
+        data = r.text 
+        for device in device_strings:
+            create_file= open ("device_data.txt", "w+")
+            create_file.write(device)
+            create_file.write(data)
+            device_data_files = street_directory / "device_data.txt"
         print("data saved for {}".format(str(i)))
-        text_file.close()
+        create_file.close()
 
 def parse():
     """
